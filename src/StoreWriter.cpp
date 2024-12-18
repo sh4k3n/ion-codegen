@@ -542,7 +542,7 @@ void ion::codegen::StoreWriter::GenerateGetId(StoreSettings& settings)
 
 void ion::codegen::StoreWriter::WriteTemporaryAllocator(const StoreSettings& settings)
 {
-	if (settings.mResource.Length() > 0)
+	if (settings.UseResource())
 	{
 		WriteLn("ion::AlignedAllocator<alignof(void*), ion::ArenaAllocator<uint8_t, %s>> allocator(&mResource);",
 				settings.mResource.CStr());
@@ -824,12 +824,13 @@ void ion::codegen::StoreWriter::GeneratePublicMethods(StoreSettings& settings, c
 
 void ion::codegen::StoreWriter::GenerateData(StoreSettings& settings, const ion::Vector<uint16_t>& groups)
 {
-	if (settings.mIndexMax != settings.mIndexMin)
+	if (settings.UseResource())
 	{
-		if (settings.mResource.Length() > 0)
-		{
-			WriteLn("%s& mResource;", settings.mResource.CStr());
-		}
+		WriteLn("%s& mResource;", settings.mResource.CStr());
+	}
+
+	if (settings.mIndexMax != settings.mIndexMin)
+	{		
 		WriteLn("ion::RawBuffer<uint8_t> mBuffer;");
 		WriteLn("%s mCapacity = 0;", settings.GetIndexType());
 	}
@@ -854,7 +855,7 @@ void ion::codegen::StoreWriter::GenerateData(StoreSettings& settings, const ion:
 				keyValue->Format("%s, %s", iter->GetTypeParam(settings.mIndexMax, false, false).CStr(), settings.GetIndexType());
 
 				ion::StackString<256> allocator;
-				if (settings.mResource.Length() > 0)
+				if (settings.UseResource())
 				{
 					allocator->Format(", ion::ArenaAllocator<ion::Pair<const %s>, %s>", keyValue.CStr(), settings.mResource.CStr());
 				}
@@ -1072,7 +1073,7 @@ ion::String ion::codegen::StoreWriter::ParentClass(const StoreSettings& settings
 	ion::StackString<256> parentClass;
 	{
 		ion::StackString<256> allocatorType;
-		if (settings.mResource.Length() > 0)
+		if (settings.UseResource())
 		{
 			allocatorType->Format(", ion::ArenaAllocator<%s, %s>", settings.GetIndexType(), settings.mResource.CStr());
 		}
@@ -1097,7 +1098,7 @@ void ion::codegen::StoreWriter::WriteInitializer(const ion::String& parentClass,
 	};
 
 	bool isFirst = true;
-	if (settings.mResource.Length() > 0)
+	if (settings.UseResource())
 	{
 		AddDelimeters(isFirst);
 		WriteLn("%s(%s)", parentClass.CStr(), isCopy ? "&other.mResource" : "resource");
@@ -1106,7 +1107,7 @@ void ion::codegen::StoreWriter::WriteInitializer(const ion::String& parentClass,
 	}
 
 	ion::StackString<256> resourceParameter;
-	if (settings.mResource.Length() > 0)
+	if (settings.UseResource())
 	{
 		resourceParameter->Format("resource, ");
 	}
@@ -1116,7 +1117,7 @@ void ion::codegen::StoreWriter::WriteInitializer(const ion::String& parentClass,
 		{
 			if (isCopy)
 			{
-				if (settings.mResource.Length() > 0)
+				if (settings.UseResource())
 				{
 					AddDelimeters(isFirst);
 					WriteLn("%s(&other.mResource, %llu)", iter->GetPathToReverseMapping().CStr(), settings.mIndexAverage);
@@ -1225,7 +1226,7 @@ void ion::codegen::StoreWriter::GenerateHeader(CodegenContext& context)
 	const bool isWritingConstructorBody = (context.mIsHeader == context.mInlining.mConstructor);
 	{
 		ion::StackString<256> resourceParameter;
-		if (settings.mResource.Length() > 0)
+		if (settings.UseResource())
 		{
 			resourceParameter->Format("%s* resource", settings.mResource.CStr());
 		}

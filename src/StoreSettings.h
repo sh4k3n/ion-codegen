@@ -508,6 +508,19 @@ struct StoreSettings
 		return true;
 	}
 
+	bool UseResource() const
+	{
+		if (mIndexMax != mIndexMin || HasReverseMaps())
+		{
+			return (mResource.Length() > 0);
+		}
+		else if (mResource.Length() > 0)
+		{
+			ION_WRN("Resource defined, but not used");
+		}
+		return false;
+	}
+
 	size_t mIndexMin;
 	size_t mIndexMax;
 	size_t mIndexAverage;
