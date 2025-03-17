@@ -106,14 +106,21 @@ struct Data
 
 	bool IsUnique() const { return mGetSetType == GetSetType::Unique; }
 
-	const ion::String GetTypeParam(size_t maxNumberOfComponents = 0, bool isConst = true, bool useRef = true) const
+	const ion::String GetTypeParam(size_t maxNumberOfComponents = 0, bool isConst = true, bool useRef = true, bool isGetter = false) const
 	{
 		ion::StackString<256> buffer;
 		if (mMaxSize == 1)
 		{
 			if (isPointer())
 			{
-				buffer->Format("%s%s", mType.CStr(), isConst ? " const" : "");
+				if (isGetter)
+				{
+					buffer->Format("%s%s", isConst ? "const " : "", mType.CStr());
+				}
+				else
+				{
+					buffer->Format("%s%s", mType.CStr(), isConst ? " const" : "");
+				}
 			}
 			else
 			{

@@ -621,7 +621,7 @@ void ion::codegen::StoreWriter::GeneratePublicMethods(StoreSettings& settings, c
 		if (iter->GetReverseMapping() != ion::codegen::ReverseMapping::None)
 		{
 			WriteLn("// Gets component with given value. Behaviour is undefined if component is not found");
-			const ion::String paramType = iter->GetTypeParam(settings.mIndexMax, true, true);
+			const ion::String paramType = iter->GetTypeParam(settings.mIndexMax, true, true, true);
 			WriteLn("%s Get%s(%s a%s) const", componentIdName.CStr(), iter->GetName().CStr(), paramType.CStr(), iter->GetName().CStr());
 			WriteLn("{");
 			AddIndent();

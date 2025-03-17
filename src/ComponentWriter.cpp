@@ -106,7 +106,7 @@ void ion::codegen::ComponentWriter::GenerateEntity(uint16_t entityIndex, StoreSe
 	{
 		if (iter->mMaxSize > 1)
 		{
-			WriteLn("[[nodiscard]] inline %s Get%s() const { %sreturn %s; }", iter->GetTypeParam(settings.mIndexMax, true).CStr(),
+			WriteLn("[[nodiscard]] inline %s Get%s() const { %sreturn %s; }", iter->GetTypeParam(settings.mIndexMax, true, true, true).CStr(),
 					iter->GetName().CStr(), settings.HasCacheTracking() ? iter->GetTrackingCall(callIndex).CStr() : "",
 					iter->GetPathToData().CStr());
 			callIndex += 2;
@@ -116,10 +116,10 @@ void ion::codegen::ComponentWriter::GenerateEntity(uint16_t entityIndex, StoreSe
 			for (size_t i = 0; i < 2; i++)
 			{
 				bool isGetterSetter = !isReadOnly && iter->HasNonConstGetter() && iter->GetReverseMapping() == ReverseMapping::None;
-				if (i == 0 || isGetterSetter)
+				if (i == 0 || isGetterSetter || iter->isPointer())
 				{
 					WriteLn("[[nodiscard]] constexpr %s %s%s() %s{ %sreturn %s; }",
-							iter->GetTypeParam(settings.mIndexMax, i == 0, true).CStr(), isGetterSetter ? "" : "Get",
+							iter->GetTypeParam(settings.mIndexMax, i == 0, true, true).CStr(), isGetterSetter ? "" : "Get",
 							iter->GetName().CStr(), i == 0 ? "const " : "",
 							settings.HasCacheTracking() ? iter->GetTrackingCall(callIndex, isGetterSetter).CStr() : "",
 							iter->GetPathToData().CStr());
